@@ -1,0 +1,2 @@
+"""AI Training Assistant package."""
+

@@ -1,0 +1,152 @@
+# CODEX PROMPT: Build a Jupyter Notebook RAG Prototype for BAK
+
+You are an expert Python developer and AI engineer. Build a complete Jupyter Notebook project for a capstone titled:
+
+"AI Employee Training and Policy Assistant for Biji's Academy Kayamkulam using Retrieval-Augmented Generation"
+
+## Goal
+Create a working RAG system that runs inside Jupyter Notebook. The system must ingest multiple PDFs, chunk the text, create embeddings, store them in a local FAISS vector index, retrieve relevant chunks for a user query, and answer using a free-tier friendly LLM API.
+
+## Preferred API
+Use Google Gemini Developer API because it has an official free tier. Use model `gemini-2.5-flash-lite` or the currently available free-tier Flash/Flash-Lite model. Keep the model name in one variable so I can change it easily.
+
+Use:
+- `google-generativeai` or the newest official Google GenAI Python SDK if available
+- API key stored in environment variable `GOOGLE_API_KEY`
+- Do not hard-code the API key
+
+## Project Constraints
+- Must run in Jupyter Notebook.
+- Must be beginner-friendly and heavily commented.
+- Must not require paid services.
+- Must use local embeddings to reduce API calls.
+- Must use FAISS locally.
+- Must include a fallback mode where retrieval works even if the LLM API call fails.
+- Must cite the source PDF name and page number in the answer.
+- Must refuse to invent policy when retrieved context is insufficient.
+
+## PDFs / Knowledge Base
+Assume the following files exist in a folder named `data/`:
+1. 01_BAK_Company_Profile_and_Principles.pdf
+2. 02_BAK_Training_and_Learning_Policy.pdf
+3. 03_BAK_Wage_Payment_and_Bonus_Policy.pdf
+4. 04_BAK_Code_of_Conduct_and_Academic_Integrity.pdf
+5. 05_BAK_Attendance_Rescheduling_and_Online_Class_Policy.pdf
+6. 06_BAK_Data_Privacy_and_AI_Use_Policy.pdf
+7. 07_BAK_Grievance_and_Fair_Treatment_Policy.pdf
+
+## Required Notebook Sections
+Create the notebook with these sections:
+
+### 1. Project Introduction
+Explain the BAK use case and RAG pipeline in short.
+
+### 2. Install and Import Libraries
+Use:
+- pypdf
+- sentence-transformers
+- faiss-cpu
+- numpy
+- pandas
+- google-generativeai or google-genai
+- python-dotenv
+- textwrap
+
+### 3. Folder Setup
+Create `data/`, `index/`, and `outputs/` folders if not present.
+
+### 4. PDF Loader
+Write a function:
+`load_pdfs(pdf_folder: str) -> list[dict]`
+Each item must include:
+- text
+- source filename
+- page number
+
+### 5. Text Cleaning
+Clean excessive whitespace, page artefacts, and empty strings.
+
+### 6. Chunking
+Write a chunking function:
+`chunk_documents(pages, chunk_size=900, overlap=150)`
+Each chunk must retain metadata:
+- source
+- page
+- chunk_id
+
+### 7. Embeddings
+Use Sentence Transformers:
+`sentence-transformers/all-MiniLM-L6-v2`
+Normalize embeddings for cosine similarity.
+
+### 8. FAISS Index
+Create a FAISS IndexFlatIP index.
+Save:
+- FAISS index to `index/bak_faiss.index`
+- metadata to `index/bak_metadata.json`
+
+### 9. Retrieval Function
+Write:
+`retrieve(query, top_k=5)`
+Return top chunks with similarity score, source, page, and text.
+
+### 10. Prompt Template for LLM
+The LLM must receive:
+- user question
+- retrieved context
+- strict instruction to answer only from retrieved context
+- instruction to say: "The uploaded BAK documents do not contain enough information to answer this question" when context is insufficient
+- source citation format: `[Source: filename, p. page]`
+
+### 11. Gemini Answer Function
+Write:
+`generate_answer(query, retrieved_chunks)`
+Use Gemini API and return an answer with citations.
+
+### 12. Fallback Answer
+If API fails, return the best retrieved snippets and say that LLM generation failed but retrieval succeeded.
+
+### 13. Interactive Query Cell
+Allow user to type questions repeatedly using `input()`.
+
+### 14. Evaluation Questions
+Test these questions:
+- What are the core services of BAK?
+- What is BAK's policy on wage payment?
+- What are authorised deductions from wages?
+- How does BAK handle student data?
+- What should happen if a student repeatedly misses online classes?
+- What is the grievance procedure?
+- What is the academy's principle on AI use?
+
+### 15. Basic Evaluation Table
+Create a pandas DataFrame with columns:
+- Question
+- Retrieved Sources
+- Answer Quality Notes
+- Hallucination Risk
+
+### 16. Export Results
+Save sample Q&A results to `outputs/sample_rag_answers.csv`.
+
+## Coding Requirements
+- Write clean, modular Python functions.
+- Add comments explaining what each step does.
+- Avoid advanced abstractions that confuse beginners.
+- Include error handling for missing PDFs, missing API key, empty extraction, and failed API calls.
+- Do not use Streamlit in this notebook version.
+- Do not use paid embedding APIs.
+
+## Final Output Expected
+A single Jupyter Notebook named:
+`BAK_RAG_Capstone_Prototype.ipynb`
+
+Also create a short `README.md` explaining:
+- how to install requirements
+- where to place PDFs
+- how to add the API key
+- how to run the notebook
+- what each section does
+
+## Important Academic Note
+This is a capstone prototype. Add comments explaining that the legal/wage policy PDFs are institutional training references and not a substitute for legal advice or official statutory consultation.
